@@ -1,0 +1,35 @@
+<!-- cours/templates/cours/moyenne_resultats.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Moyenne des résultats</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            text-align: center;
+            margin: 50px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        #moyenne-resultats {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <h1>Moyenne des résultats</h1>
+    <p id="moyenne-resultats">En attente de la moyenne...</p>
+
+    <!-- Inclusion du fichier script.js -->
+    <script src="{% static 'js/script.js' %}"></script>
+</body>
+</html>
+

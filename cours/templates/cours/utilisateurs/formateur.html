@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil Formateur</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f5f5f5;
+            text-align: center;
+            margin: 50px;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        p {
+            margin-bottom: 15px;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Profil Formateur</h1>
+    <h2>Informations sur le formateur</h2>
+    <p>Nom d'utilisateur : {{ formateur.username }}</p>
+    <p>Email : {{ formateur.email }}</p>
+    <!-- Ajoutez d'autres informations du formateur selon vos besoins -->
+
+    <h2>Liste des sessions de cours</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Titre</th>
+                <th>Description</th>
+                <th>Date début</th>
+                <th>Date fin</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for session in sessions %}
+            <tr>
+                <td>{{ session.titre }}</td>
+                <td>{{ session.description }}</td>
+                <td>{{ session.date_debut }}</td>
+                <td>{{ session.date_fin }}</td>
+                <td>
+            <button onclick="editSession()">Modifier une session</button>
+            <form action="{% url 'supprimer_session' session.id %}" method="POST">
+                {% csrf_token %}
+                <button>Supprimer une session</button>
+            </form>
+        
+            <script>
+                    
+                function editSession() {
+            // Rediriger vers la page de création de session
+            window.location.href = "{% url 'modifier_session' session.id %}";
+        }
+                
+            </script>
+        </li>
+    {% empty %}
+        <li class="empty-message">Aucune session de cours disponible.</li>
+    {% endfor %}
+    </ul>
+
+    <button onclick="createSession()">Créer une session</button>
+
+    <script>
+        function createSession() {
+    // Rediriger vers la page de création de session
+    window.location.href = "{% url 'creer_session' %}";
+}
+
+    </script>
+</body>
+</html>
