@@ -19,12 +19,66 @@
         p {
             margin-bottom: 15px;
         }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
     </style>
 </head>
 <body>
-    <h2>Profil Etudiant</h2>
+    <h1>Profil Etudiant</h1>
+    <h2>Informations sur le formateur</h2>
     <p>Nom d'utilisateur : {{ etudiant.username }}</p>
     <p>Email : {{ etudiant.email }}</p>
     <!-- Ajoutez d'autres informations de l'étudiant selon vos besoins -->
+
+    <h2>Liste des sessions de cours</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Titre</th>
+                <th>Description</th>
+                <th>Date début</th>
+                <th>Date fin</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for session in sessions %}
+            <tr>
+                <td>{{ session.titre }}</td>
+                <td>{{ session.description }}</td>
+                <td>{{ session.date_debut }}</td>
+                <td>{{ session.date_fin }}</td>
+                <td>
+                    <button onclick="inscrireSession()">S'inscrire à la session</button>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5">Aucune session de cours disponible.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <button onclick="remplirFormulaire()">Remplir un formulaire</button>
+
+    <script>
+        function remplirFormulaire() {
+            // Rediriger vers le formulaire à remplir
+            window.location.href = "{% url 'remplir_formulaire' %}";
+        }
+    </script>
 </body>
 </html>

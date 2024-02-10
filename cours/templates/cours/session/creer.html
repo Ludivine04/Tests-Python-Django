@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Créer un formulaire pour {{ session.titre }}</title>
+    <title>Créer une session de cours {{ session.titre }}</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -56,7 +56,7 @@
 </head>
 <body>
 
-<h2>Créer un formulaire pour {{ session.titre }}</h2>
+<h2>Créer une session de cours {{ session.titre }}</h2>
 
 <form id="formulaire_cours" method="post">
     {% csrf_token %}

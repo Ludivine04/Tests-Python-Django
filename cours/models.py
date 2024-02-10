@@ -7,13 +7,13 @@ class Session(models.Model):
     statut = models.CharField(max_length=10, choices=[('ouvert', 'Ouvert'), ('ferme', 'Fermé')])
     date_debut = models.DateField()
     date_fin = models.DateField()
-    formateur = models.ForeignKey(User, on_delete=models.CASCADE)  # Relation avec le modèle User pour le formateur
+    formateur = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.titre
     
 class Formulaire(models.Model):
-    session = models.ForeignKey(Session, on_delete=models.CASCADE)  # Relation avec le modèle SessionCours
+    session = models.ForeignKey(Session, on_delete=models.CASCADE)
     pourcentage = models.IntegerField()
     difficulte = models.CharField(max_length=100)
     progression = models.CharField(max_length=100)

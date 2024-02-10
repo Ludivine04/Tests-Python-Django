@@ -10,7 +10,7 @@ from cours.views import (
     liste_sessions, 
     modifier_session, 
     supprimer_session, 
-    #remplir_formulaire, 
+    remplir_formulaire, 
     etudiants,
     formateur, 
     redirectioncompte,
@@ -24,7 +24,7 @@ urlpatterns = [
     # Chemin pour afficher le profil d'un formateur
     path('formateur/', formateur, name='formateur'),
 
-    # Chemin pour afficher le profil d'un étudiant (utilisation de la vue basée sur une classe)
+    # Chemin pour afficher le profil d'un étudiant
     path('etudiants', etudiants, name='etudiants'),
 
     #
@@ -50,6 +50,9 @@ urlpatterns = [
 
     # Chemin pour afficher la liste des sessions de cours existantes
     path('sessions', liste_sessions, name='liste_sessions'),
+
+    # Chemin pour remplir un formulaire pour une session de cours spécifique
+    path('remplir_formulaire', remplir_formulaire, name='remplir_formulaire'),
 ]
     
 '''
@@ -58,37 +61,13 @@ urlpatterns = [
      # Chemin pour la page de connexion
     path('login/', login_user, name='login'),
 
-    
-
     # Chemin pour la création d'un formulaire pour une session de cours spécifique
     path('creer_formulaire', creer_formulaire, name='creer_formulaire'),
 
     # Chemin pour afficher la liste des sessions de cours existantes
     path('sessions/', liste_sessions_cours, name='liste_sessions_cours'),
-
     
-
-    
-
-    # Chemin pour l'inscription d'un étudiant (utilisation de la vue basée sur une classe)
-    path('inscription/', InscriptionEtudiant.as_view(), name='inscription_etudiant'),
-
-    # Chemin pour la connexion d'un étudiant (utilisation de la vue basée sur une classe)
-    path('connexion/', ConnexionEtudiant, name='connexion_etudiant'),
-
-    
-
-    # Chemin pour remplir un formulaire pour une session de cours spécifique
-    path('remplir_formulaire', remplir_formulaire, name='remplir_formulaire'),
-
-    
-
-    # Chemin vers la vue du profil
-    path('profil/', profil, name='profil'),
-
-    
-
-  
+      
 
     
 ]

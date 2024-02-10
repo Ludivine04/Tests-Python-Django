@@ -23,7 +23,7 @@ def accueil(request):
 @login_required
 def formateur(request):
     # Récupérer le formateur à partir de la requête
-    formateur = request.user  # Supposant que le formateur est stocké en tant qu'utilisateur dans le système d'authentification
+    formateur = request.user
     sessionsutilisateur=Session.objects.filter(formateur=formateur.id)
     # Passer les informations du formateur au modèle pour affichage
     return render(request, 'cours/utilisateurs/formateur.html', {'formateur': formateur, 'sessions': sessionsutilisateur,})
@@ -38,22 +38,18 @@ def redirectioncompte(request):
     else:
         return ('error')
     
-# Vue pour le profil d'un formateur
+# Vue pour le profil d'un etudiant
 @login_required
 def etudiants(request):
-    # Récupérer le formateur à partir de la requête
-    etudiants = request.user  # Supposant que le formateur est stocké en tant qu'utilisateur dans le système d'authentification
-
-    # Passer les informations du formateur au modèle pour affichage
-    return render(request, 'cours/utilsateurs/etudiants.html', {'etudiants': etudiants})
+    etudiants = request.user
+    #sessionsutilisateurs=Session.objects.filter(etudiants=etudiants.id) , 'sessions': sessionsutilisateurs,
+    return render(request, 'cours/utilisateurs/etudiants.html', {'etudiants': etudiants})
 
 
 # Vue pour la création d'une session de cours
 @login_required
 def creer_session(request):
-    # Vérifie si la requête est une méthode POST (envoi de données)
     if request.method == 'POST':
-        # Crée une instance du formulaire de création de session de cours avec les données reçues
         form = SessionCoursForm(request.POST)
         # Vérifie si les données du formulaire sont valides
         if form.is_valid():
@@ -64,9 +60,7 @@ def creer_session(request):
             print("Session créée avec succès:", session.titre)
             return redirect('formateur')  
     else:
-        # Si la requête n'est pas de type POST, crée une instance vide du formulaire de création de session de cours
         form = SessionCoursForm()
-    # Renvoie la page HTML du formulaire de création de session de cours avec le formulaire et les sessions existantes
     return render(request, 'cours/session/creer.html', {'form': form})
 
 
@@ -75,7 +69,6 @@ def creer_session(request):
 def creer_enquete(request):
     # Récupère la session de cours associée à l'identifiant fourni, ou renvoie une erreur 404 si la session n'existe pas
     session = get_object_or_404(Session)
-    # Vérifie si la requête est une méthode POST (envoi de données)
     if request.method == 'POST':
         # Crée une instance du formulaire de création de formulaire avec les données reçues
         form = FormulaireForm(request.POST)
@@ -88,9 +81,7 @@ def creer_enquete(request):
             # Redirige l'utilisateur vers la page de création de session de cours après la création du formulaire
             return redirect('creer_session')
     else:
-        # Si la requête n'est pas de type POST, crée une instance vide du formulaire de création de formulaire
         form = FormulaireForm()
-    # Renvoie la page HTML du formulaire de création de formulaire avec le formulaire et la session de cours associée
     return render(request, 'cours/enquete/avancement.html', {'form': form, 'session': session})
 
 # Vue pour modifier les détails d'une session de cours existante
@@ -103,7 +94,6 @@ def modifier_session(request, session_id):
         # Si la méthode de la requête est POST, cela signifie que le formulaire a été soumis
         form = SessionCoursForm(request.POST, instance=session)
         if form.is_valid():
-            # Si le formulaire est valide, les modifications sont enregistrées dans la base de données
             form.save()
             # Redirection vers la page affichant la liste des sessions de cours après la modification
             return redirect('formateur')
@@ -137,19 +127,7 @@ def liste_sessions(request,):
 
 
 
-'''    
-# Vue pour le profil d'un étudiant
-@login_required
-class ProfilEtudiant(APIView):
-    # Méthode pour récupérer les données du profil de l'étudiant
-    def get(self, request):
-        # Récupère l'utilisateur connecté (étudiant)
-        etudiant = request.user
-        # Sérialise les données de l'étudiant
-        serializer = EtudiantSerializer(etudiant)
-        # Retourne les données sérialisées en tant que réponse
-        return Response(serializer.data)
-'''
+
 
 '''
 # Vue pour la connexion d'utilisateur
@@ -199,29 +177,6 @@ class InscriptionEtudiant(APIView):
             # et le code de statut 400 (Bad Request)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-# Vue pour la connexion d'un étudiant
-@login_required
-class ConnexionEtudiant(APIView):
-    # Récupère le nom d'utilisateur et le mot de passe à partir des données de la requête POST
-    def post(self, request):
-        username = request.data.get('username')
-        password = request.data.get('password')
-        # Recherche l'étudiant correspondant dans la base de données par son nom d'utilisateur
-        etudiant = Etudiant.objects.filter(username=username).first()
-        # Vérifie si l'étudiant existe et si le mot de passe fourni est correct
-        if etudiant and etudiant.check_password(password):
-            # Génère un nouveau jeton d'actualisation (refresh token) pour l'étudiant
-            refresh = RefreshToken.for_user(etudiant)
-            # Retourne une réponse avec le jeton d'actualisation et le jeton d'accès (access token)
-            return Response({'refresh': str(refresh), 'access': str(refresh.access_token)})
-        # Si l'étudiant n'existe pas ou si le mot de passe est incorrect, retourne une réponse d'erreur
-        # avec un message approprié et le code de statut 401 (Unauthorized)
-        return Response({'error': 'Nom d\'utilisateur ou mot de passe incorrect'}, status=status.HTTP_401_UNAUTHORIZED)
-
-
-
-
 # Fonction pour vérifier si l'utilisateur est un formateur
 def is_formateur(user):
     return user.is_authenticated and user.is_staff
@@ -245,8 +200,6 @@ def profil(request):
         # Rend la page de profil avec le formulaire approprié, prêt à être affiché
     return render(request, 'cours/profil.html', {'form': form})
 
-
-
     # Méthode pour mettre à jour les données du profil de l'étudiant
     def put(self, request):
         # Récupère l'utilisateur connecté (étudiant)
@@ -261,13 +214,17 @@ def profil(request):
             return Response(serializer.data)
         # Retourne les erreurs de validation si les données sérialisées ne sont pas valides
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+'''
 
-    
+
+
+
+
 # Vue pour le remplissage d'un formulaire
 @login_required
 def remplir_formulaire(request, session_id):
     # Récupérer la session de cours correspondant à l'identifiant fourni
-    session_cours = get_object_or_404(SessionCours, pk=session_id)
+    session_cours = get_object_or_404(Session, pk=session_id)
     try:
         # Assurez-vous que l'ID de session est un entier
         session_id = int(session_id)
@@ -277,8 +234,8 @@ def remplir_formulaire(request, session_id):
 
     # Récupérer la session de cours correspondant à l'identifiant fourni
     try:
-        session_cours = SessionCours.objects.get(pk=session_id)
-    except SessionCours.DoesNotExist:
+        session_cours = Session.objects.get(pk=session_id)
+    except Session.DoesNotExist:
         # Si aucune session de cours correspondante n'est trouvée, renvoyer une réponse BadRequest
         return HttpResponseBadRequest("La session de cours spécifiée n'existe pas.")
     
@@ -291,19 +248,19 @@ def remplir_formulaire(request, session_id):
     if session_cours.date_fin < timezone.now():
         raise ValidationError("La session de cours est terminée.")
         # Récupérez la session de cours correspondant à l'identifiant fourni
-        session_cours = get_object_or_404(SessionCours, pk=session_id)
+        #session_cours = get_object_or_404(Session, pk=session_id)
         # Si la méthode de la requête est POST, cela signifie que l'utilisateur a soumis le formulaire
     
     if request.method == 'POST':
         # Créez une instance de FormulaireEtudiant avec les données soumises par l'utilisateur
-        form = FormulaireEtudiant(request.POST)
+        form = FormulaireForm(request.POST)
 
         # Vérifie si les données soumises sont valides
         if form.is_valid():
             # Récupérer l'ID de session à partir des données soumises
             session_id = form.cleaned_data['session_id']
             # Récupérer la session de cours correspondant à l'identifiant fourni
-            session_cours = get_object_or_404(SessionCours, pk=session_id)
+            session_cours = get_object_or_404(Session, pk=session_id)
 
             # Si le formulaire est valide, vous pouvez accéder aux données soumises
             nom = form.cleaned_data['nom']
@@ -317,8 +274,8 @@ def remplir_formulaire(request, session_id):
              # Récupère l'identifiant de session à partir des données soumises (si disponible)
             session_id = form.cleaned_data['session_id']
             # Récupère la session de cours correspondant à l'identifiant fourni
-            session_cours = get_object_or_404(SessionCours, pk=session_id)
-            session_cours = SessionCours.objects.get(id=session_id)
+            session_cours = get_object_or_404(Session, pk=session_id)
+            session_cours = Session.objects.get(id=session_id)
             # Créez un objet Formulaire avec les données du formulaire et l'identifiant de session
             formulaire = Formulaire(session=session_cours, avancement_tp=avancement_tp, difficulte=difficulte, progression=progression)
             formulaire.save()
@@ -339,8 +296,7 @@ def remplir_formulaire(request, session_id):
 
     else:
         # Créer le formulaire avec ou sans données initiales
-        form = FormulaireEtudiant(initial={'session_id': session_id})
+        form = FormulaireForm(initial={'session_id': session_id})
 
     # Passez l'objet session à votre template pour pouvoir accéder à son ID
     return render(request, 'cours/remplir_formulaire.html', {'form': form, 'session': session_cours})
-'''
