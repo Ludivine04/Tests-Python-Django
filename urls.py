@@ -10,7 +10,7 @@ from cours.views import (
     liste_sessions, 
     modifier_session, 
     supprimer_session, 
-    remplir_formulaire, 
+    remplir, 
     etudiants,
     formateur, 
     redirectioncompte,
@@ -40,7 +40,7 @@ urlpatterns = [
     path('session/creer', creer_session, name='creer_session'),
 
     # Cehmin pour créer formulaire
-    path('enquete/creer', creer_enquete, name='creer_formulaire'),
+    path('enquete/formulaire', creer_enquete, name='creer_formulaire'),
 
     # Chemin pour modifier une session de cours spécifique
     path('session/modifier/<int:session_id>', modifier_session, name='modifier_session'),
@@ -52,7 +52,9 @@ urlpatterns = [
     path('sessions', liste_sessions, name='liste_sessions'),
 
     # Chemin pour remplir un formulaire pour une session de cours spécifique
-    path('remplir_formulaire', remplir_formulaire, name='remplir_formulaire'),
+    path('enquete/remplir<int:session_id>', remplir, name='remplir'),
+
+
 ]
     
 '''
@@ -64,8 +66,7 @@ urlpatterns = [
     # Chemin pour la création d'un formulaire pour une session de cours spécifique
     path('creer_formulaire', creer_formulaire, name='creer_formulaire'),
 
-    # Chemin pour afficher la liste des sessions de cours existantes
-    path('sessions/', liste_sessions_cours, name='liste_sessions_cours'),
+    
     
       
 

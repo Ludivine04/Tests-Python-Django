@@ -76,7 +76,7 @@
 </head>
 <body>
 
-    <h2>Créer une nouvelle session de cours</h2>
+    <h2>Créer un nouveau formulaire</h2>
 
     <form method="post">
         {% csrf_token %}
@@ -112,13 +112,13 @@
     <ul>
         {% for session in sessions %}
             <li>
-                <a href="{% url 'creer_formulaire' session.id %}">Créer un formulaire pour {{ session.titre }}</a>
+                <a href="{% url 'formulaire' session.id %}">Créer un formulaire pour {{ session.titre }}</a>
             </li>
         {% endfor %}
     </ul>
     
     <h2>Liste des sessions de cours existantes</h2>
-    <a href="{% url 'liste_sessions_cours' %}">Voir les sessions de cours existantes</a>
+    <a href="{% url 'Liste_sessions' %}">Voir les sessions de cours existantes</a>
     
     </body>
     </html>

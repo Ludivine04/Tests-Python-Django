@@ -4,31 +4,37 @@ app = Flask(__name__)  # Création d'une instance de l'application Flask
 
 resultats = []  # Initialisation d'une liste pour stocker les résultats
 
-@app.route('/api/recevoir-resultats', methods=['POST'])  # Définition de la route pour recevoir les résultats
+@app.route('/api/recevoir-resultats', methods=['POST'])
 def recevoir_resultats():
     """
-    Cette fonction gère les requêtes POST pour recevoir de nouveaux résultats.
+    Fonction pour recevoir les résultats envoyés via une requête POST.
     Les données JSON sont extraites de la requête et ajoutées à la liste 'resultats'.
     """
-    donnees = request.json  # Extraction des données JSON de la requête
-    resultats.append(donnees)  # Ajout des données à la liste 'resultats'
-    return 'Données reçues avec succès', 200  # Réponse HTTP indiquant que les données ont été reçues
+    # Extraction des données JSON de la requête
+    donnees = request.json
+    # Ajout des données à la liste 'resultats'
+    resultats.append(donnees)
+    # Réponse HTTP indiquant que les données ont été reçues avec succès
+    return 'Données reçues avec succès', 200
 
-@app.route('/api/moyenne-resultats', methods=['GET'])  # Définition de la route pour calculer la moyenne des résultats
+@app.route('/api/moyenne-resultats', methods=['GET'])
 def moyenne_resultats():
     """
-    Cette fonction gère les requêtes GET pour calculer la moyenne des 5 derniers résultats.
-    Si aucun résultat n'est disponible, elle renvoie un message indiquant qu'aucun résultat n'est disponible.
-    Sinon, elle calcule la moyenne des scores et renvoie une réponse JSON contenant la moyenne.
+    Fonction pour calculer la moyenne des scores des 5 derniers résultats
+    et renvoyer la moyenne sous forme de réponse JSON.
     """
-    if not resultats:  # Vérification si des résultats sont disponibles
-        return 'Aucun résultat disponible', 404  # Si aucun résultat n'est disponible, renvoie une réponse 404
+    if not resultats:
+        # Si aucun résultat n'est disponible, renvoie une réponse 404
+        return 'Aucun résultat disponible', 404
 
-    dernieres_resultats = resultats[-5:]  # Récupération des 5 derniers résultats
-    moyenne = sum(res['score'] for res in dernieres_resultats) / len(dernieres_resultats)  # Calcul de la moyenne
-    return jsonify({'moyenne': moyenne}), 200  # Renvoie une réponse JSON avec la moyenne calculée
+    # Récupération des 5 derniers résultats
+    dernieres_resultats = resultats[-5:]
+    # Calcul de la moyenne des scores
+    moyenne = sum(res['score'] for res in dernieres_resultats) / len(dernieres_resultats)
+    # Renvoie une réponse JSON avec la moyenne calculée
+    return jsonify({'moyenne': moyenne}), 200
 
 if __name__ == '__main__':
-    app.run(debug=True)  # Démarrage de l'application Flask en mode debug si le script est exécuté directement
+    app.run(debug=True)
 
 

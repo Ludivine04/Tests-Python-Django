@@ -1,0 +1,37 @@
+<!-- templates/resultats.html -->
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Résultats des étudiants</title>
+    <style>
+        /* Ajoutez votre style CSS ici si nécessaire */
+    </style>
+</head>
+<body>
+    <h1>Résultats des étudiants</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Nom de l'étudiant</th>
+                <th>% d'avancement sur le TP</th>
+                <th>Difficulté</th>
+                <th>Progression</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for result in results %}
+                <tr>
+                    <td>{{ result.nom_etudiant }}</td>
+                    <td>{{ result.progression_tp }}%</td>
+                    <td>{{ result.difficulte }}</td>
+                    <td>{{ result.progression }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

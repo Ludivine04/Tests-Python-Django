@@ -1,3 +1,6 @@
+from datetime import date
+import datetime
+from http.client import responses
 from os import error
 from django.shortcuts import render, redirect, get_object_or_404
 from django.db import transaction
@@ -42,8 +45,9 @@ def redirectioncompte(request):
 @login_required
 def etudiants(request):
     etudiants = request.user
-    #sessionsutilisateurs=Session.objects.filter(etudiants=etudiants.id) , 'sessions': sessionsutilisateurs,
-    return render(request, 'cours/utilisateurs/etudiants.html', {'etudiants': etudiants})
+    print (etudiants)
+    reponses = Session.objects.all()
+    return render(request, 'cours/utilisateurs/etudiants.html', {'etudiants': etudiants, 'reponses': reponses})
 
 
 # Vue pour la création d'une session de cours
@@ -82,7 +86,7 @@ def creer_enquete(request):
             return redirect('creer_session')
     else:
         form = FormulaireForm()
-    return render(request, 'cours/enquete/avancement.html', {'form': form, 'session': session})
+    return render(request, 'cours/enquete/remplir.html', {'form': form, 'session': session})
 
 # Vue pour modifier les détails d'une session de cours existante
 @login_required
@@ -216,87 +220,39 @@ def profil(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 '''
 
-
-
-
-
 # Vue pour le remplissage d'un formulaire
 @login_required
-def remplir_formulaire(request, session_id):
-    # Récupérer la session de cours correspondant à l'identifiant fourni
-    session_cours = get_object_or_404(Session, pk=session_id)
+def remplir(request, session_id):
     try:
-        # Assurez-vous que l'ID de session est un entier
         session_id = int(session_id)
     except ValueError:
-        # Si l'ID de session n'est pas un entier valide, renvoyer une réponse BadRequest
         return HttpResponseBadRequest("L'ID de session n'est pas valide.")
 
-    # Récupérer la session de cours correspondant à l'identifiant fourni
-    try:
-        session_cours = Session.objects.get(pk=session_id)
-    except Session.DoesNotExist:
-        # Si aucune session de cours correspondante n'est trouvée, renvoyer une réponse BadRequest
-        return HttpResponseBadRequest("La session de cours spécifiée n'existe pas.")
+    #session_cours = Session.objects.get(id=session_id)
+    session_cours = get_object_or_404(Session, pk=session_id)
     
-    # Vérifie si c'est la première connexion de l'utilisateur dans la session
-    if 'premiere_connexion' not in request.session:
-        # Enregistre la date et l'heure de la première connexion de l'utilisateur dans la session
-        request.session['premiere_connexion'] = timezone.now()
-        # Exemple d'utilisation de ValidationError pour une validation personnalisée
+    #if session_cours.date_fin > datetime.date.today():
+        #return HttpResponseBadRequest("La session de cours est terminée.")
 
-    if session_cours.date_fin < timezone.now():
-        raise ValidationError("La session de cours est terminée.")
-        # Récupérez la session de cours correspondant à l'identifiant fourni
-        #session_cours = get_object_or_404(Session, pk=session_id)
-        # Si la méthode de la requête est POST, cela signifie que l'utilisateur a soumis le formulaire
-    
     if request.method == 'POST':
-        # Créez une instance de FormulaireEtudiant avec les données soumises par l'utilisateur
         form = FormulaireForm(request.POST)
 
-        # Vérifie si les données soumises sont valides
         if form.is_valid():
-            # Récupérer l'ID de session à partir des données soumises
-            session_id = form.cleaned_data['session_id']
-            # Récupérer la session de cours correspondant à l'identifiant fourni
-            session_cours = get_object_or_404(Session, pk=session_id)
+            nom = form.cleaned_data.get('nom')
+            print (nom)
+            prenom = form.cleaned_data.get('prenom')
+            print (prenom)
+            avancement_tp = form.cleaned_data.get('avancement_tp')
+            difficulte = form.cleaned_data.get('difficulte')
+            progression = form.cleaned_data.get('progression')
 
-            # Si le formulaire est valide, vous pouvez accéder aux données soumises
-            nom = form.cleaned_data['nom']
-            prenom = form.cleaned_data['prenom']
-            print("Nom soumis dans le formulaire :", nom)
-            print("Prénom soumis dans le formulaire :", prenom)
-            avancement_tp = form.cleaned_data['avancement_tp']
-            difficulte = form.cleaned_data['difficulte']
-            progression = form.cleaned_data['progression']
-
-             # Récupère l'identifiant de session à partir des données soumises (si disponible)
-            session_id = form.cleaned_data['session_id']
-            # Récupère la session de cours correspondant à l'identifiant fourni
-            session_cours = get_object_or_404(Session, pk=session_id)
-            session_cours = Session.objects.get(id=session_id)
-            # Créez un objet Formulaire avec les données du formulaire et l'identifiant de session
             formulaire = Formulaire(session=session_cours, avancement_tp=avancement_tp, difficulte=difficulte, progression=progression)
             formulaire.save()
 
-            # Utilisation d'une transaction pour garantir l'intégrité des données dans la base de données
-            with transaction.atomic():
-                formulaire = Formulaire.objects.create(
-                    session=session_cours,
-                    nom=nom,
-                    prenom=prenom,
-                    avancement_tp=avancement_tp,
-                    difficulte=difficulte,
-                    progression=progression
-                )
-
-            # Redirection vers une page de confirmation
-            return HttpResponse("Formulaire soumis avec succès !")
-
+            
+            # Redirection vers la page précédente
+            return redirect(request.META.get('HTTP_REFERER', 'cours:accueil'))
     else:
-        # Créer le formulaire avec ou sans données initiales
         form = FormulaireForm(initial={'session_id': session_id})
 
-    # Passez l'objet session à votre template pour pouvoir accéder à son ID
-    return render(request, 'cours/remplir_formulaire.html', {'form': form, 'session': session_cours})
+    return render(request, 'cours/enquete/remplir.html', {'form': form, 'session': session_cours})
