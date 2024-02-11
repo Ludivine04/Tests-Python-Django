@@ -14,7 +14,8 @@ from cours.views import (
     etudiants,
     formateur, 
     redirectioncompte,
-    #profil,    
+    resultat,
+    CustomTokenObtainPairView   
 )
 
 urlpatterns = [   
@@ -54,22 +55,12 @@ urlpatterns = [
     # Chemin pour remplir un formulaire pour une session de cours spécifique
     path('enquete/remplir<int:session_id>', remplir, name='remplir'),
 
+    # Resulats
+    path('enquete/resultat', resultat, name='resultat'),
+
+    path('api/token/', CustomTokenObtainPairView, name='token_obtain_pair'),
+
+    
+
 
 ]
-    
-'''
-           
-
-     # Chemin pour la page de connexion
-    path('login/', login_user, name='login'),
-
-    # Chemin pour la création d'un formulaire pour une session de cours spécifique
-    path('creer_formulaire', creer_formulaire, name='creer_formulaire'),
-
-    
-    
-      
-
-    
-]
-'''

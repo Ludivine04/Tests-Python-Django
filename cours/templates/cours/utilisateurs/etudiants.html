@@ -34,7 +34,10 @@
             background-color: #45a049;
         }
     </style>
+    <input type="hidden" name="nom" value="{{ user.last_name }}">
+    <input type="hidden" name="prenom" value="{{ user.first_name }}">
 </head>
+
 <body>
     <h1>Profil Etudiant</h1>
     <h2>Informations sur le formateur</h2>
@@ -61,14 +64,50 @@
                 <td>{{ session.date_debut }}</td>
                 <td>{{ session.date_fin }}</td>
                 <td>
-                <button onclick="remplirFormulaire()">Remplir un formulaire</button>
+                    <button onclick="remplirFormulaire()">Remplir un formulaire</button>
 
-    <script>
-        function remplirFormulaire() {
-            // Rediriger vers le formulaire à remplir
-            window.location.href = "{% url 'remplir' session.id %}";
-        }
-    </script>
+                    <script>
+                        function remplirFormulaire() {
+                        // Get the current time
+                        var currentTime = new Date();
+                        var hours = currentTime.getHours();
+                        var minutes = currentTime.getMinutes();
+                        var seconds = currentTime.getSeconds();
+                    
+                        var formattedMinutes = (minutes < 10) ? "0" + minutes : minutes;
+                        var formattedSeconds = (seconds < 10) ? "0" + seconds : seconds;
+                    
+                        var formattedTime = hours + ":" + formattedMinutes + ":" + formattedSeconds;
+                                     
+                        
+                    
+                        var formData = new FormData();
+                        formData.append("time_opened", formattedTime);
+                        formData.append("nom", "{{user.last_name}}");
+                        formData.append("prenom", "{{user.first_name}}");
+                        formData.append("cours", "{{ session.titre }}");
+                    
+                        // Send the POST request
+                        fetch("http://localhost:5000/api/time_opened", {
+                            method: "POST",
+                            body: formData
+                        })
+                        .then(response => response.text())
+                        .then(data => {
+                    
+                            console.log(data);
+                    
+                    
+                            window.location.href = "{% url 'remplir' session.id %}";
+                        })
+                        .catch(error => {
+                    
+                            console.error("Error:", error);
+                    
+                        });
+                    }
+                    
+                    </script>
                 </td>
             </tr>
             

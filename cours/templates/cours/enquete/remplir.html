@@ -79,10 +79,13 @@
 <div class="container">
     <h2>Remplir le formulaire</h2>
 
-    <form id="id_form" method="post">
+    <form id="id_form" method="post" onsubmit="return envoyerDonneesAPI()">
         {% csrf_token %}
         <!-- Ajout du champ session_id -->
         <input type="hidden" name="session_id" value="{{ session.id }}">
+        <input type="hidden" name="nom" value="{{ user.last_name }}">
+        <input type="hidden" name="prenom" value="{{ user.first_name }}">
+        
         
         <!-- Champ pour le % d'avancement sur le TP -->
         <label for="progression_tp">Votre % d’avancement sur le TP :</label>
@@ -113,9 +116,15 @@
 
 <script>
     function envoyerDonneesAPI() {
+      
+
+        // Get the referrer URL
+        var referrerURL = document.referrer;
         var formData = new FormData(document.getElementById('id_form'));
-        // Remplacer 'URL_DE_VOTRE_API_FLASK' par l'URL de votre API Flask
-        fetch('http://localhost:5000/api/moyenne-resultats', {
+        var nom = formData.get("nom");
+        var prenom = formData.get("prenom");
+        console.log(referrerURL)
+        fetch('http://localhost:5000/api/recevoir-resultats', {
             method: 'POST',
             body: formData
         })
@@ -124,21 +133,19 @@
                 throw new Error('Erreur lors de l\'envoi des données à l\'API');
             }
             console.log('Données envoyées avec succès à l\'API');
-            // Redirection vers la page du profil étudiant
-            window.location.href = 'etudiants';
+
+            window.location.href = referrerURL;
+
             return response.json();
         })
         .catch(error => {
             console.error('Erreur :', error);
         });
 
-        // Empêcher le formulaire de se soumettre normalement
         return false;
     }
-
-    // Appeler la fonction toutes les minutes
-    setInterval(envoyerDonneesAPI, 60000); // 60000 millisecondes = 1 minute
 </script>
+
 
 </body>
 </html>

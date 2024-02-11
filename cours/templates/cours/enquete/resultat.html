@@ -1,5 +1,3 @@
-<!-- templates/resultats.html -->
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -7,7 +5,66 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Résultats des étudiants</title>
     <style>
-        /* Ajoutez votre style CSS ici si nécessaire */
+        h1 {
+            margin-bottom: 3%; 
+            margin-top: -5%;
+        }
+        body {
+            text-align: center;
+            margin: 10% 0; 
+        }
+
+        tbody .tr {
+            text-align: center;
+        }
+
+        th {
+            text-align: center;
+            border: 1px solid #ddd;
+            padding: 4px; 
+        }
+
+        td {
+            padding: 4px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 60vw;
+            margin: 0 auto; 
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        /* Style the table header row */
+        thead {
+            background-color: #f2f2f2;
+        }
+
+        /* Style "Moyenne des résultats" grid */
+        #moyenne-grid {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            padding: 15px;
+            text-align: center;
+        }
+
+        #moyenne-resultats {
+            font-size: 18px;
+            color: #555;
+            margin-bottom: 10px; /* Add margin between average and total answers */
+        }
+
+        #total-answers {
+            font-size: 16px;
+            color: #888;
+        }
     </style>
 </head>
 <body>
@@ -16,22 +73,95 @@
     <table>
         <thead>
             <tr>
+                <th> Cours </th>
                 <th>Nom de l'étudiant</th>
                 <th>% d'avancement sur le TP</th>
                 <th>Difficulté</th>
                 <th>Progression</th>
             </tr>
         </thead>
-        <tbody>
-            {% for result in results %}
-                <tr>
-                    <td>{{ result.nom_etudiant }}</td>
-                    <td>{{ result.progression_tp }}%</td>
-                    <td>{{ result.difficulte }}</td>
-                    <td>{{ result.progression }}</td>
-                </tr>
-            {% endfor %}
+        <tbody id="resultsTableBody">
+            <!-- Placeholder row when results are missing -->
+            <tr>
+                <td colspan="5"> Aucune réponses n'est disponible pour l'instant </td>
+            </tr>
         </tbody>
     </table>
+
+    <!-- "Moyenne des résultats" grid -->
+    <div id="moyenne-grid">
+        <p id="moyenne-resultats">En attente de la moyenne...</p>
+        <p id="total-answers">En attente du total...</p>
+    </div>
+
+    <!-- Include the JavaScript file to fetch and display the results -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    fetchResults();
+
+    function fetchResults() {
+        fetch('http://localhost:5000/api/moyenne-resultats')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erreur lors de la récupération des résultats');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log(data);
+
+                const tbody = document.getElementById('resultsTableBody');
+                tbody.innerHTML = '';
+
+                if (Object.keys(data).length > 0) {
+                    // Iterate over the students and their results
+                    for (const studentName in data) {
+                        const studentResults = data[studentName];
+
+                        studentResults.forEach(result => {
+                            const row = document.createElement('tr');
+                            row.classList.add('tr');
+                            row.innerHTML = `
+                                <td>${result.titre}</td>
+                                <td>${studentName}</td>
+                                <td>${result.progression_tp}%</td>
+                                <td>${result.difficulte}</td>
+                                <td>${result.progression}</td>
+                            `;
+                            tbody.appendChild(row);
+                        });
+                    }
+
+                    // Calculate average based on all results
+                    const allResults = [].concat(...Object.values(data));
+                    const average = calculateAverage(allResults);
+
+                    // Update "Moyenne des résultats" grid
+                    const moyenneResultatsElement = document.getElementById('moyenne-resultats');
+                    moyenneResultatsElement.textContent = 'Moyenne des résultats : ' + average.toFixed(2);
+
+                    // Update total answers
+                    const totalAnswersElement = document.getElementById('total-answers');
+                    totalAnswersElement.textContent = 'Total des réponses : ' + allResults.length;
+                } else {
+                    console.error('Aucun résultat disponible.');
+
+                    // If results are missing, display the placeholder row
+                    tbody.innerHTML = '<tr><td colspan="5">En attente de réponses</td></tr>';
+                }
+            })
+            .catch(error => {
+                console.error('Erreur lors de la récupération des résultats:', error);
+            });
+    }
+
+    // Helper function to calculate average
+    function calculateAverage(results) {
+        const total = results.reduce((sum, result) => sum + parseInt(result.progression_tp), 0);
+        return total / results.length;
+    }
+});
+
+</script>
 </body>
 </html>

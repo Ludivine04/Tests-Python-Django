@@ -7,7 +7,8 @@ from django.db import transaction
 from django.utils import timezone
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.core.exceptions import ValidationError
@@ -16,8 +17,9 @@ from .models import Session, Formulaire
 from .forms import SessionCoursForm, FormulaireForm
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.views import APIView
+#from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 def accueil(request):
     return render(request, 'cours/accueil.html')
@@ -129,97 +131,6 @@ def liste_sessions(request,):
     return render(request, 'cours/liste_sessions.html', {'sessions': sessions})
 
 
-
-
-
-
-'''
-# Vue pour la connexion d'utilisateur
-def login_user(request):
-    # Vérifie si la méthode de requête est POST (lorsque le formulaire est soumis)
-    if request.method == 'POST':
-        # Crée une instance du formulaire d'authentification avec les données de la requête
-        form = AuthenticationForm(request, request.POST)
-        # Vérifie si les données du formulaire sont valides
-        if form.is_valid():
-            # Récupère le nom d'utilisateur et le mot de passe à partir du formulaire
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
-            # Vérifie si l'utilisateur existe dans la base de données et que les informations sont correctes
-            user = authenticate(username=username, password=password)
-            print(user)
-            userProfile=UserProfile.objects.filter(user=user.id)
-            if user is not None:
-                login(request, user)
-                # Vérifie si l'utilisateur est un formateur avant de le rediriger
-                if user.is_formateur:
-                    return redirect('liste_sessions_de_cours')
-                else:
-                    # Redirigez l'utilisateur vers une page par défaut ou affichez un message d'erreur
-                    messages.error(request, "Vous n'êtes pas autorisé à accéder à cette page.")
-                    return redirect('page_non_autorisee')  # Redirige vers une page de message d'erreur
-                
-    else:
-        # Crée une instance vide du formulaire d'authentification pour afficher le formulaire de connexion
-        form = AuthenticationForm()
-        # Rend la page de connexion avec le formulaire, qu'il soit valide ou vide
-    return render(request, 'cours/login.html', {'form': form})
-
-# Vue pour l'inscription d'un étudiant
-class InscriptionEtudiant(APIView):
-    def post(self, request):
-        # Sérialise les données reçues dans la requête en utilisant EtudiantSerializer
-        serializer = EtudiantSerializer(data=request.data)
-        # Vérifie si les données sérialisées sont valides
-        if serializer.is_valid():
-            # Si les données sont valides, enregistre l'étudiant dans la base de données
-            serializer.save()
-            # Retourne une réponse avec les données sérialisées et le code de statut 201 (Created)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        else:
-            # Si les données ne sont pas valides, retourne une réponse avec les erreurs de validation
-            # et le code de statut 400 (Bad Request)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-# Fonction pour vérifier si l'utilisateur est un formateur
-def is_formateur(user):
-    return user.is_authenticated and user.is_staff
-
-@login_required
-def profil(request):
-    # Vérifie si la méthode de la requête est POST
-    if request.method == 'POST':
-        # Crée un formulaire UserProfileForm avec les données soumises par l'utilisateur
-        form = UserProfileForm(request.POST, instance=request.user.userprofile)
-        # Vérifie si les données du formulaire sont valides
-        if form.is_valid():
-            # Enregistre les données mises à jour du formulaire dans la base de données
-            form.save()
-            # Redirige l'utilisateur vers la page de profil après la mise à jour
-            return redirect('profil')
-    # Si la méthode de la requête est GET
-    else:
-        # Crée un formulaire UserProfileForm pré-rempli avec les données du profil de l'utilisateur actuel
-        form = UserProfileForm(instance=request.user.userprofile)
-        # Rend la page de profil avec le formulaire approprié, prêt à être affiché
-    return render(request, 'cours/profil.html', {'form': form})
-
-    # Méthode pour mettre à jour les données du profil de l'étudiant
-    def put(self, request):
-        # Récupère l'utilisateur connecté (étudiant)
-        etudiant = request.user
-        # Sérialise les données reçues dans la requête
-        serializer = EtudiantSerializer(etudiant, data=request.data)
-        # Vérifie si les données sérialisées sont valides
-        if serializer.is_valid():
-            # Enregistre les données mises à jour du profil de l'étudiant dans la base de données
-            serializer.save()
-            # Retourne les données sérialisées mises à jour en tant que réponse
-            return Response(serializer.data)
-        # Retourne les erreurs de validation si les données sérialisées ne sont pas valides
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-'''
-
 # Vue pour le remplissage d'un formulaire
 @login_required
 def remplir(request, session_id):
@@ -228,31 +139,63 @@ def remplir(request, session_id):
     except ValueError:
         return HttpResponseBadRequest("L'ID de session n'est pas valide.")
 
-    #session_cours = Session.objects.get(id=session_id)
     session_cours = get_object_or_404(Session, pk=session_id)
     
-    #if session_cours.date_fin > datetime.date.today():
-        #return HttpResponseBadRequest("La session de cours est terminée.")
-
     if request.method == 'POST':
         form = FormulaireForm(request.POST)
 
         if form.is_valid():
-            nom = form.cleaned_data.get('nom')
-            print (nom)
-            prenom = form.cleaned_data.get('prenom')
-            print (prenom)
+            user_name = request.user.first_name
+            user_lastname = request.user.last_name
             avancement_tp = form.cleaned_data.get('avancement_tp')
             difficulte = form.cleaned_data.get('difficulte')
             progression = form.cleaned_data.get('progression')
 
-            formulaire = Formulaire(session=session_cours, avancement_tp=avancement_tp, difficulte=difficulte, progression=progression)
+            formulaire = Formulaire(
+                nom=user_name,
+                prenom=user_lastname,
+                session=session_cours,
+                avancement_tp=avancement_tp,
+                difficulte=difficulte,
+                progression=progression
+            )
             formulaire.save()
 
-            
             # Redirection vers la page précédente
             return redirect(request.META.get('HTTP_REFERER', 'cours:accueil'))
     else:
         form = FormulaireForm(initial={'session_id': session_id})
 
     return render(request, 'cours/enquete/remplir.html', {'form': form, 'session': session_cours})
+
+
+@staff_member_required
+def resultat(request):
+    return render(request, 'cours/enquete/resultat.html')
+
+@login_required
+class CustomTokenObtainPairView(TokenObtainPairView):
+    def post(self, request, *args, **kwargs):
+        response = super().post(request, *args, **kwargs)
+        if response.status_code == status.HTTP_200_OK:
+            user = self.user
+            refresh = response.data.get('refresh')
+            access = response.data.get('access')
+
+            
+            payload = {
+                'user_id': user.id,
+                'username': user.username,
+                'email': user.email,
+            }
+
+            refresh_token = RefreshToken(refresh)
+            refresh_token.payload.update(payload)
+
+            return Response({
+                'access': access,
+                'refresh': str(refresh_token),
+            })
+
+        return response
+
