@@ -59,8 +59,4 @@ urlpatterns = [
     path('enquete/resultat', resultat, name='resultat'),
 
     path('api/token/', CustomTokenObtainPairView, name='token_obtain_pair'),
-
-    
-
-
 ]
